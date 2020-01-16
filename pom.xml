@@ -10,21 +10,19 @@
     </parent>
     <groupId>cn.hellohao</groupId>
     <artifactId>Tbed</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>Pro</version>
     <name>Tbed</name>
     <description>Hellohao Picture Bed for Spring Boot</description>
 
     <properties>
         <java.version>1.8</java.version>
+        <docker.image.prefix>springboot</docker.image.prefix>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
-
-
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
@@ -76,6 +74,32 @@
             <artifactId>qiniu-java-sdk</artifactId>
             <version>7.2.22</version>
         </dependency>
+<!--        腾讯-->
+        <dependency>
+            <groupId>com.qcloud</groupId>
+            <artifactId>cos_api</artifactId>
+            <version>5.5.7</version>
+        </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>cn.ucloud.ufile</groupId>-->
+<!--            <artifactId>ufile-client-java</artifactId>-->
+<!--            <version>2.3.0</version>-->
+<!--        </dependency>-->
+
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>3.3</version>
+        </dependency>
+<!--hutool-->
+        <!-- https://mvnrepository.com/artifact/cn.hutool/hutool-all -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>4.5.16</version>
+        </dependency>
+
 
         <!--        定时器依赖-->
         <dependency>
@@ -114,6 +138,11 @@
             <version>1.2</version>
         </dependency>
 
+        <dependency>
+            <groupId>nekohtml</groupId>
+            <artifactId>nekohtml</artifactId>
+            <version>1.9.6.2</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -140,14 +169,35 @@
             <artifactId>pagehelper-spring-boot-starter</artifactId>
             <version>1.2.10</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>4.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>5.1.9.RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
+
+
     </dependencies>
 
     <build>
-        <defaultGoal>compile</defaultGoal>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <executable>true</executable>
+                </configuration>
             </plugin>
         </plugins>
     </build>

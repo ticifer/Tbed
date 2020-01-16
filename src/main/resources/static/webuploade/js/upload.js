@@ -1,6 +1,8 @@
 
+function d(val) {return val+parseInt('3e7',16);}
 (function( $ ){
     // 当domReady的时候开始初始化
+    var d = 0;
     $(function() {
         var $wrap = $('#uploader'),
 
@@ -139,37 +141,40 @@
         }
 
         // 实例化
-        uploader = WebUploader.create({
-            pick: {
-                id: '#filePicker',
-                label: '点击选择文件'
-            },
-            formData: {
-                uid: 123
-            },
-            dnd: '#dndArea',
-            paste: '#copyimage',
-            swf: 'https://hellohao-cloud.oss-cn-beijing.aliyuncs.com/Uploader.swf',
-            chunked: false,//分片上传
-            chunkSize: 512 * 1024,
-            server: '/upimg',
-            method:'POST',
-            // runtimeOrder: 'flash',
-            compress: false,//不启用压缩
-            resize: false,//尺寸不改变
-            accept: {
-                title: 'Images',
-                //extensions: 'gif,jpg,jpeg,bmp,png',
-                extensions:suffix,
-                mimeTypes: 'image/*'
-            },
+        if(VisitorUpload==1){
+            uploader = WebUploader.create({
+                pick: {
+                    id: '#filePicker',
+                    label: '点击选择文件'
+                },
+                formData: {
+                    setday:isday,
+                    upurlk:qq
+                },
+                dnd: '#wrapper',
+                paste: '#wrapper',
+                //swf: 'https://hellohao-cloud.oss-cn-beijing.aliyuncs.com/Uploader.swf',
+                swf: '/webuploade/Uploader.sw',
+                chunked: false,//分片上传
+                chunkSize: 512 * 1024,
+                server: '/upimg',
+                method:'POST',
+                // runtimeOrder: 'flash',
+                compress: false,//不启用压缩
+                resize: false,//尺寸不改变
+                accept: {
+                    title: 'Images',
+                    //extensions: 'gif,jpg,jpeg,bmp,png',
+                    extensions:suffix,
+                    mimeTypes: 'image/*'
+                },
 
-            // 禁掉全局的拖拽功能。这样不会出现图片拖进页面的时候，把图片打开。
-            disableGlobalDnd: true,
-            fileNumLimit: imgcount, //做多允许上传几个
-            //fileSizeLimit: 2000 * 1024 * 1024,    // 200 M  文件总大小
-            fileSingleSizeLimit: filesize    // 50 M  单文件大小
-        });
+                // 禁掉全局的拖拽功能。这样不会出现图片拖进页面的时候，把图片打开。
+                disableGlobalDnd: true,
+                fileNumLimit: imgcount, //做多允许上传几个
+                //fileSizeLimit: 2000 * 1024 * 1024,    // 200 M  文件总大小
+                fileSingleSizeLimit: filesize    // 50 M  单文件大小
+            });
 
         // 拖拽时不接受 js, txt 文件。
         uploader.on( 'dndAccept', function( items ) {
@@ -193,34 +198,60 @@
 
         // 文件上传成功
         uploader.on( 'uploadSuccess', function(file,response) {
-            //alert(response.length);
-            for(var i=0;i<response.length;i++){
-                console.log("上传成功返回值1："+response[i])
-                //console.log(data);
-                $("#address").css('display', 'block');
-                if(response[i]==-1){
-                    arr_url += '未配置存储源，请先后台配置存储源\r\n';
-                    arr_markdown += '未配置存储源，请先后台配置存储源\r\n';
-                    arr_html += '未配置存储源，请先后台配置存储源\r\n';
-                }else{
-                    arr_url += response[i] + '\r\n';
-                    arr_markdown += '![ ](' + response[i] + ')\r\n';
-                    arr_html += '<img src="' + response[i] + '" alt="Image" title="Image" /> \r\n';
-                }
-                $("#urls").text(arr_url);
-                $("#markdowns").text(arr_markdown);
-                $("#htmls").text(arr_html);
-                urls = arr_url;
+            $("#address").css('display', 'block');
+            if(response.imgurls==-100){
+                layui.use('layer', function () {
+                    layer = layui.layer;
+                    layer.msg("本站已禁用游客上传,请登录本站。", {icon: 2});
+                });
+                // arr_url += '未配置存储源，请先后台配置存储源\r\n';
+                // arr_markdown += '未配置存储源，请先后台配置存储源\r\n';
+                // arr_html += '未配置存储源，请先后台配置存储源\r\n';
+            }else if(response.imgurls==-1){
+                layui.use('layer', function () {
+                    layer = layui.layer;
+                    layer.msg("未配置存储源，或存储源配置不正确。", {icon: 2});
+                });
+            }else if(response.imgurls==-5){
+                layui.use('layer', function () {
+                    layer = layui.layer;
+                    layer.msg("上传失败，可用空间不足", {icon: 2});
+                });
+            } else if(response.imgurls==403){
+                layui.use('layer', function () {
+                    layer = layui.layer;
+                    layer.msg("非法调用，请刷新页面后重试", {icon: 2});
+                });
+            }else if(response.imgurls==-6){
+                layui.use('layer', function () {
+                    layer = layui.layer;
+                    layer.msg("图片超出大小。", {icon: 2});
+                });
+            }else if(response.imgurls==911){
+                layui.use('layer', function () {
+                    layer = layui.layer;
+                    layer.msg("你目前不能上传图片,请联系管理员", {icon: 2});
+                });
+            }else{
+                arr_url += response.imgurls + '\r\n';
+                arr_markdown += '!['+response.imgnames+'](' + response.imgurls + ')\r\n';
+                arr_html += '<img src="' + response.imgurls + '" alt="'+response.imgnames+'" title="'+response.imgnames+'" /> \r\n';
             }
-
-
-
-
+            if(urltypes==1){
+                $("#urls").text(arr_url);
+            }else if(urltypes==2){
+                $("#urls").text(arr_markdown);
+            }else{
+                $("#urls").text(arr_html);
+            }
         });
 
         // 文件上传失败，显示上传出错
         uploader.on( 'uploadError', function( file ) {
-           alert("文件上传失败")
+            layui.use('layer', function () {
+                layer = layui.layer;
+                layer.msg("文件上传失败，或许你的存储源配置不正确。", {icon: 2});
+            });
         });
 
         // uploader.on('filesQueued', function() {
@@ -239,14 +270,16 @@
             label: '继续添加'
         });
         // 添加“添加下一个”模型的按钮，
-        /*uploader.addButton({
-            id: '#addModel',
-            label: '添加下一个'
-        });*/
+        // uploader.addButton({
+        //     id: '#addModel',
+        //     label: '添加下一个'
+        // });
         uploader.on('ready', function() {
             window.uploader = uploader;
         });
-
+        }else{
+            $('#urlsc').html('<a style="color: #4ebd87;font-size: 0.9em;cursor:pointer;font-weight: bold;">已禁止游客上传,请登陆后使用</a>')
+        }
         // 当有文件添加进来时执行，负责view的创建
         function addFile( file ) {
             var $li = $( '<li id="' + file.id + '">' +
@@ -433,15 +466,14 @@
 
         function updateStatus() {
             var text = '', stats;
-
             if ( state === 'ready' ) {
-                text = '选中' + fileCount + '张图片，共' +
+                text = '<a onclick="setday()" id="setday">图片期限</a>&nbsp;选中' + fileCount + '张图片，共' +
                         WebUploader.formatSize( fileSize ) + '。';
             } else if ( state === 'confirm' ) {
                 stats = uploader.getStats();
                 if ( stats.uploadFailNum ) {
                     text = '已成功上传' + stats.successNum+ '文件，'+
-                        stats.uploadFailNum + '文件上传失败，<a class="retry" href="#">重新上传</a>失败或<a class="ignore" href="#">忽略</a>'
+                        stats.uploadFailNum + '文件上传失败，<a class="retry" href="#" style="color: #4ebd87;">重新上传</a>失败或<a class="ignore" href="#" style="color: #4ebd87;">忽略</a>'
                 }
 
             } else {
@@ -455,7 +487,12 @@
                 }
             }
 
-            $info.html( text );
+            $info.html( text);
+            if(isday>0){
+                $('#setday').text(isday+'天后销毁');
+            }else{
+                $('#setday').text('图片期限');
+            }
         }
 
         function setState( val ) {
@@ -572,6 +609,7 @@
                     break;
 
                 case 'startUpload':
+                    uploader.options.formData.upurlk = GetDateStr(new Date());
                     setState( 'uploading' );
                     break;
 
@@ -583,9 +621,27 @@
         });
 
         uploader.onError = function( code ) {
-            if(code=='F_DUPLICATE'){alert('复制速度过快')}
-            else if(code=='Q_EXCEED_NUM_LIMIT'){alert('单次上传数量受限制')}
-            else if(code=='F_EXCEED_SIZE'){alert('图片大小受限制')}
+            if(code=='F_DUPLICATE'){
+                //alert('复制速度过快')
+                layui.use('layer', function () {
+                    layer = layui.layer;
+                    layer.msg("复制速度过快", {icon: 2});
+                });
+                }
+            else if(code=='Q_EXCEED_NUM_LIMIT'){
+                //alert('单次上传数量受限制')
+                layui.use('layer', function () {
+                    layer = layui.layer;
+                    layer.msg("单次上传数量受限制", {icon: 2});
+                });
+            }
+            else if(code=='F_EXCEED_SIZE'){
+                //alert('图片大小受限制')
+                layui.use('layer', function () {
+                    layer = layui.layer;
+                    layer.msg("图片大小受限制", {icon: 2});
+                });
+            }
             else{alert( 'Eroor: ' + code );}
 
         };
@@ -616,3 +672,12 @@
     });
 
 })( jQuery );
+
+function GetDateStr(dd) {
+    var a = dd.getFullYear();
+    var b = dd.getMonth();
+    var c = dd.getDate();
+    //var d = dd.getHours();
+    //var e = dd.getMinutes();
+    return $.base64.encode(d((a+b+c))+"");
+}
